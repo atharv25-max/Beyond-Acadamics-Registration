@@ -2,47 +2,114 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Dashboard | Beyond Academics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Member Dashboard | Beyond Academics</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
     <style>
-        /* --- SAME THEME AS LANDING PAGE --- */
+        /* --- THEME VARIABLES --- */
         :root {
             --bg-color: #0f172a;
             --card-bg: rgba(30, 41, 59, 0.7);
             --text-primary: #f8fafc;
             --accent: #6366f1;
         }
+
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-primary);
             margin: 0; padding: 0;
+            overflow-x: hidden; /* Prevents side scrolling on phone */
         }
+
+        /* --- NAVBAR --- */
         .navbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 40px; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 15px 20px; /* Reduced padding for mobile */
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid #333;
+            position: sticky; top: 0; z-index: 100;
+            backdrop-filter: blur(10px);
         }
-        .logo { font-weight: 800; font-size: 1.2rem; color: #fff; }
+        .logo { font-weight: 800; font-size: 1.1rem; color: #fff; display: flex; align-items: center; gap: 8px;}
+        
         .logout-btn {
             background: transparent; border: 1px solid #ef4444; color: #ef4444;
-            padding: 8px 16px; border-radius: 5px; cursor: pointer; transition: 0.3s;
+            padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: 0.3s;
+            font-size: 0.9rem;
         }
         .logout-btn:hover { background: #ef4444; color: white; }
-        
-        /* DASHBOARD LAYOUT */
-        .container { max-width: 1000px; margin: 40px auto; padding: 20px; }
+
+        /* --- LAYOUT CONTAINER --- */
+        .container { 
+            max-width: 1000px; 
+            margin: 20px auto; 
+            padding: 0 20px; 
+        }
+
+        /* --- WELCOME BANNER --- */
         .welcome-banner {
             background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            padding: 40px; border-radius: 16px; margin-bottom: 30px;
+            padding: 30px; 
+            border-radius: 16px; 
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
         }
-        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .welcome-banner h1 { margin: 0; font-size: 1.8rem; }
+        .welcome-banner p { margin: 5px 0 0 0; opacity: 0.9; }
+
+        /* --- GRID SYSTEM (DESKTOP DEFAULT) --- */
+        .grid { 
+            display: grid; 
+            grid-template-columns: 2fr 1fr; /* 2 parts Left, 1 part Right */
+            gap: 20px; 
+        }
+
+        /* --- CARDS --- */
         .card {
-            background: var(--card-bg); padding: 25px; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--card-bg); 
+            padding: 25px; 
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        h2 { margin-top: 0; }
-        .tag { background: #22c55e; color: black; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        h2 { margin-top: 0; font-size: 1.4rem; }
+        .tag { background: #22c55e; color: black; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; vertical-align: middle; margin-left: 8px;}
+
+        /* --- MOBILE RESPONSIVENESS (THE MAGIC) --- */
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr; /* Stack them vertically */
+            }
+            
+            .welcome-banner {
+                padding: 20px;
+                text-align: center;
+            }
+            .welcome-banner h1 { font-size: 1.5rem; }
+            
+            .navbar { padding: 15px; }
+            .container { margin-top: 15px; }
+        }
+        
+        /* --- ACTION BUTTON --- */
+        .action-btn {
+            background: white; border: none; padding: 12px 20px; 
+            border-radius: 6px; cursor: pointer; font-weight: bold;
+            color: #0f172a; width: 100%; /* Full width on mobile looks better */
+            transition: transform 0.2s;
+        }
+        .action-btn:hover { transform: scale(1.02); }
+
+        /* --- RESOURCE LINKS --- */
+        .resource-link {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px; background: rgba(255,255,255,0.05);
+            border-radius: 8px; text-decoration: none; color: #a5b4fc;
+            margin-bottom: 10px; transition: background 0.2s;
+        }
+        .resource-link:hover { background: rgba(255,255,255,0.1); color: white; }
+
     </style>
 </head>
 <body>
@@ -54,40 +121,46 @@
 
     <div class="container">
         <div class="welcome-banner">
-            <h1>Welcome back, <span id="user-name">Member</span>!</h1>
-            <p>Ready for this week's logic jam?</p>
+            <h1>Hi, <span id="user-name">Member</span>! 👋</h1>
+            <p>Ready to debug this week's challenge?</p>
         </div>
 
         <div class="grid">
             <div class="card">
-                <h2>🎯 Week 1 Challenge <span class="tag">ACTIVE</span></h2>
-                <p style="color: #ccc; margin: 15px 0;">
+                <h2>Week 1 Challenge <span class="tag">LIVE</span></h2>
+                <p style="color: #cbd5e1; margin-top: 10px;">
                     <strong>Topic:</strong> Optimization & Arrays<br>
-                    <strong>Problem:</strong> "The Rainwater Trapping Problem"
+                    <strong>Problem:</strong> "Trapping Rain Water" (LeetCode Hard)
                 </p>
-                <hr style="border-color: #444; margin: 15px 0;">
-                <p>We are not just solving it. We are comparing 3 approaches:</p>
-                <ul>
-                    <li>Brute Force (O(n²))</li>
+                
+                <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+                
+                <p style="font-size: 0.9rem; color: #94a3b8;">Goal: Compare 3 Logic Approaches.</p>
+                <ul style="color: #cbd5e1; padding-left: 20px; margin-bottom: 25px;">
+                    <li>Brute Force Approach</li>
                     <li>Dynamic Programming</li>
-                    <li>Two Pointer (O(n))</li>
+                    <li>Two Pointer Optimization</li>
                 </ul>
-                <br>
-                <button style="background: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-                    View Problem Details ➔
+                
+                <button class="action-btn">
+                    View Problem Statement ➔
                 </button>
             </div>
 
             <div class="card">
                 <h3>📚 Resource Drop</h3>
-                <p style="font-size: 0.9rem; color: #aaa;">Curated by Tech Lead</p>
-                <div style="margin-top: 15px;">
-                    <a href="#" style="color: #6366f1; text-decoration: none; display: block; margin-bottom: 10px;">
-                        ▶ Video: Visualizing Two Pointers
-                    </a>
-                    <a href="#" style="color: #6366f1; text-decoration: none; display: block;">
-                        📄 Article: Big O Notation Guide
-                    </a>
+                <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px;">Curated by Tech Lead</p>
+                
+                <a href="#" class="resource-link">
+                    <span>🎥</span> Visualizing Two Pointers
+                </a>
+                <a href="#" class="resource-link">
+                    <span>📄</span> Big O Notation Guide
+                </a>
+
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed #333;">
+                    <div style="font-size: 0.8rem; color: #64748b;">YOUR STATUS</div>
+                    <div style="color: #ef4444; font-weight: bold; margin-top: 5px;">⚠️ Pending Submission</div>
                 </div>
             </div>
         </div>
@@ -97,7 +170,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // --- PASTE YOUR FIREBASE CONFIG HERE AGAIN ---
+        // --- PASTE YOUR API KEYS HERE ---
         const firebaseConfig = {
              apiKey: "AIzaSyAIN0wAqPcPTqgZ6PrejDHcPnWcLOoyWOY",
              authDomain: "beyond-academics-web.firebaseapp.com",
@@ -110,18 +183,16 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // 1. Check if user is logged in. If not, kick them back to index.html
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is safe. Display their name.
-                document.getElementById("user-name").innerText = user.displayName.split(" ")[0]; // First name only
+                // Get first name only
+                const firstName = user.displayName ? user.displayName.split(" ")[0] : "Member";
+                document.getElementById("user-name").innerText = firstName;
             } else {
-                // User is NOT logged in. Redirect to login page.
                 window.location.href = "index.html";
             }
         });
 
-        // 2. Logout Logic
         document.getElementById("logout-btn").addEventListener("click", () => {
             signOut(auth).then(() => {
                 window.location.href = "index.html";
