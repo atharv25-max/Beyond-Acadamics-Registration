@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard | Beyond Academics</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+    <style>
+        /* --- SAME THEME AS LANDING PAGE --- */
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-primary: #f8fafc;
+            --accent: #6366f1;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0; padding: 0;
+        }
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 40px; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;
+        }
+        .logo { font-weight: 800; font-size: 1.2rem; color: #fff; }
+        .logout-btn {
+            background: transparent; border: 1px solid #ef4444; color: #ef4444;
+            padding: 8px 16px; border-radius: 5px; cursor: pointer; transition: 0.3s;
+        }
+        .logout-btn:hover { background: #ef4444; color: white; }
+        
+        /* DASHBOARD LAYOUT */
+        .container { max-width: 1000px; margin: 40px auto; padding: 20px; }
+        .welcome-banner {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            padding: 40px; border-radius: 16px; margin-bottom: 30px;
+        }
+        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .card {
+            background: var(--card-bg); padding: 25px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h2 { margin-top: 0; }
+        .tag { background: #22c55e; color: black; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">🚀 Beyond Academics</div>
+        <button id="logout-btn" class="logout-btn">Log Out</button>
+    </nav>
+
+    <div class="container">
+        <div class="welcome-banner">
+            <h1>Welcome back, <span id="user-name">Member</span>!</h1>
+            <p>Ready for this week's logic jam?</p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>🎯 Week 1 Challenge <span class="tag">ACTIVE</span></h2>
+                <p style="color: #ccc; margin: 15px 0;">
+                    <strong>Topic:</strong> Optimization & Arrays<br>
+                    <strong>Problem:</strong> "The Rainwater Trapping Problem"
+                </p>
+                <hr style="border-color: #444; margin: 15px 0;">
+                <p>We are not just solving it. We are comparing 3 approaches:</p>
+                <ul>
+                    <li>Brute Force (O(n²))</li>
+                    <li>Dynamic Programming</li>
+                    <li>Two Pointer (O(n))</li>
+                </ul>
+                <br>
+                <button style="background: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                    View Problem Details ➔
+                </button>
+            </div>
+
+            <div class="card">
+                <h3>📚 Resource Drop</h3>
+                <p style="font-size: 0.9rem; color: #aaa;">Curated by Tech Lead</p>
+                <div style="margin-top: 15px;">
+                    <a href="#" style="color: #6366f1; text-decoration: none; display: block; margin-bottom: 10px;">
+                        ▶ Video: Visualizing Two Pointers
+                    </a>
+                    <a href="#" style="color: #6366f1; text-decoration: none; display: block;">
+                        📄 Article: Big O Notation Guide
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // --- PASTE YOUR FIREBASE CONFIG HERE AGAIN ---
+        const firebaseConfig = {
+             apiKey: "AIzaSyAIN0wAqPcPTqgZ6PrejDHcPnWcLOoyWOY",
+             authDomain: "beyond-academics-web.firebaseapp.com",
+             projectId: "beyond-academics-web",
+             storageBucket: "beyond-academics-web.firebasestorage.app",
+             messagingSenderId: "629372056950",
+             appId: "1:629372056950:web:a98541b13caad1391cb657"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // 1. Check if user is logged in. If not, kick them back to index.html
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is safe. Display their name.
+                document.getElementById("user-name").innerText = user.displayName.split(" ")[0]; // First name only
+            } else {
+                // User is NOT logged in. Redirect to login page.
+                window.location.href = "index.html";
+            }
+        });
+
+        // 2. Logout Logic
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            });
+        });
+    </script>
+</body>
+</html>
