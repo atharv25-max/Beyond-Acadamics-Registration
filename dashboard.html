@@ -11,6 +11,7 @@
             --bg-color: #0f172a;
             --card-bg: rgba(30, 41, 59, 0.7);
             --text-primary: #f8fafc;
+            --accent: #6366f1;
         }
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -21,21 +22,20 @@
         }
         .navbar {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;
+            padding: 20px 40px; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;
         }
         .logo { font-weight: 800; font-size: 1.2rem; color: #fff; }
         .logout-btn {
             background: transparent; border: 1px solid #ef4444; color: #ef4444;
-            padding: 6px 12px; border-radius: 5px; cursor: pointer;
+            padding: 8px 16px; border-radius: 5px; cursor: pointer; transition: 0.3s;
         }
         .logout-btn:hover { background: #ef4444; color: white; }
-        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
         
+        .container { max-width: 1000px; margin: 40px auto; padding: 20px; }
         .welcome-banner {
             background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            padding: 30px; border-radius: 16px; margin-bottom: 25px;
+            padding: 40px; border-radius: 16px; margin-bottom: 30px;
         }
-        
         .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
         @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
 
@@ -48,7 +48,7 @@
         .action-btn {
             background: white; border: none; padding: 12px 20px; 
             border-radius: 6px; cursor: pointer; font-weight: bold;
-            color: #0f172a; width: 100%; margin-top: 15px;
+            color: #0f172a; width: 100%; margin-top: 10px;
         }
     </style>
 </head>
@@ -68,26 +68,42 @@
         <div class="grid">
             <div class="card">
                 <h2 id="challenge-header">
-                    Loading... <span class="tag">...</span>
+                    Loading Challenge... <span class="tag" id="challenge-status">...</span>
                 </h2>
-                
-                <p id="challenge-details" style="color: #cbd5e1; margin: 15px 0; min-height: 60px;">
-                    Connecting to Database...
+
+                <p style="color: #cbd5e1; margin-top: 10px;" id="challenge-details">
+                    Connecting to HQ...
                 </p>
                 
-                <hr style="border-color: rgba(255,255,255,0.1);">
+                <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
                 
                 <p style="font-size: 0.9rem; color: #94a3b8;">Goal: Compare 3 Logic Approaches.</p>
-                <ul style="color: #cbd5e1; padding-left: 20px;">
+                <ul style="color: #cbd5e1; padding-left: 20px; margin-bottom: 25px;">
                     <li>Brute Force Approach</li>
                     <li>Dynamic Programming</li>
                     <li>Two Pointer Optimization</li>
                 </ul>
-
+                
                 <button id="challenge-btn" class="action-btn">
-                    Loading Link...
+                    View Problem Statement ➔
                 </button>
-            </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed rgba(255,255,255,0.2);">
+                    <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px;">
+                        ✅ Done? Paste your GitHub Gist / LeetCode link:
+                    </p>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="submission-link" placeholder="https://..." 
+                            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white;">
+                        
+                        <button id="submit-btn" style="background: #22c55e; color: black; border: none; padding: 0 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                            Submit
+                        </button>
+                    </div>
+                    <p id="submit-msg" style="font-size: 0.8rem; margin-top: 5px; min-height: 20px;"></p>
+                </div>
+                </div>
 
             <div class="card">
                 <h3>📚 Resource Drop</h3>
@@ -102,11 +118,13 @@
     </div>
 
     <script type="module">
+        // 1. IMPORT FIREBASE TOOLS
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        // NEW IMPORTS: collection, addDoc, serverTimestamp (For submissions)
+        import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // --- PASTE YOUR API KEYS HERE ---
+        // 2. YOUR CONFIG
         const firebaseConfig = {
              apiKey: "AIzaSyAIN0wAqPcPTqgZ6PrejDHcPnWcLOoyWOY",
              authDomain: "beyond-academics-web.firebaseapp.com",
@@ -120,62 +138,100 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // 1. Auth Check
+        let currentUser = null; // Store user info for submission
+
+        // 3. CHECK LOGIN STATUS
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Safe check for user-name element
-                const nameEl = document.getElementById("user-name");
-                if (nameEl) nameEl.innerText = user.displayName.split(" ")[0];
-                
+                currentUser = user; // Save user globally
+                const firstName = user.displayName ? user.displayName.split(" ")[0] : "Member";
+                document.getElementById("user-name").innerText = firstName;
                 getChallengeData();
             } else {
                 window.location.href = "index.html";
             }
         });
 
-        // 2. Logout
+        // 4. LOGOUT FUNCTION
         document.getElementById("logout-btn").addEventListener("click", () => {
             signOut(auth).then(() => { window.location.href = "index.html"; });
         });
 
-        // 3. Database Fetch
+        // 5. FETCH CHALLENGE DATA
         async function getChallengeData() {
             try {
-                // Check if Elements Exist (The Fix for your Error)
+                // Check elements first
                 const headerEl = document.getElementById("challenge-header");
                 const detailsEl = document.getElementById("challenge-details");
                 const btnEl = document.getElementById("challenge-btn");
 
-                if (!headerEl || !detailsEl || !btnEl) {
-                    console.error("CRITICAL: HTML Elements missing! Check IDs.");
-                    return;
-                }
+                if (!headerEl || !detailsEl || !btnEl) return;
 
-                // Fetch Data
                 const docRef = doc(db, "app_data", "week_1");
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     
-                    // Inject Data
                     headerEl.innerHTML = `Week 1 Challenge <span class="tag">${data.status}</span>`;
+                    document.getElementById("challenge-status").innerText = data.status;
+
                     detailsEl.innerHTML = `
                         <strong>Topic:</strong> ${data.topic}<br>
                         <strong>Problem:</strong> "${data.title}"
                     `;
-                    
+
                     btnEl.innerText = "Solve on LeetCode ➔";
                     btnEl.onclick = function() { window.open(data.link, '_blank'); };
-
                 } else {
-                    detailsEl.innerText = "Error: Challenge 'week_1' not found in DB.";
+                    console.log("No data found");
                 }
             } catch (error) {
-                console.error("DB Error:", error);
-                const detailsEl = document.getElementById("challenge-details");
-                if(detailsEl) detailsEl.innerText = "Connection Failed. Check Console.";
+                console.error("Error getting document:", error);
             }
+        }
+
+        // 6. NEW: HANDLE SUBMISSION
+        const submitBtn = document.getElementById("submit-btn");
+        
+        if(submitBtn) {
+            submitBtn.addEventListener("click", async () => {
+                const inputEl = document.getElementById("submission-link");
+                const msgEl = document.getElementById("submit-msg");
+                const link = inputEl.value;
+
+                // Validation
+                if(!link.includes("http")) {
+                    msgEl.style.color = "#ef4444";
+                    msgEl.innerText = "⚠️ Invalid link. Must start with http/https";
+                    return;
+                }
+
+                submitBtn.innerText = "Sending...";
+
+                try {
+                    // Write to Firestore
+                    await addDoc(collection(db, "submissions"), {
+                        userName: currentUser.displayName,
+                        userEmail: currentUser.email,
+                        link: link,
+                        challengeId: "week_1",
+                        timestamp: serverTimestamp()
+                    });
+
+                    // Success Feedback
+                    msgEl.style.color = "#4ade80"; // Green
+                    msgEl.innerText = "✅ Submitted successfully!";
+                    inputEl.value = ""; // Clear input
+                    submitBtn.innerText = "Submit";
+
+                } catch (error) {
+                    console.error("Submit Error:", error);
+                    msgEl.style.color = "#ef4444";
+                    msgEl.innerText = "❌ Error submitting. Check Console.";
+                    submitBtn.innerText = "Submit";
+                }
+            });
         }
     </script>
 </body>
