@@ -177,7 +177,21 @@
                     headerEl.innerHTML = `Week 1 Challenge <span class="tag" id="challenge-status">${data.status}</span>`;
                     detailsEl.innerHTML = `<strong>Topic:</strong> ${data.topic}<br><strong>Problem:</strong> "${data.title}"`;
                     btnEl.innerText = "Solve on LeetCode ➔";
-                    btnEl.onclick = function() { window.open(data.link, '_blank'); };
+                    // Remove any previous event listeners (good practice)
+const newBtn = btn.cloneNode(true);
+btn.parentNode.replaceChild(newBtn, btn);
+
+newBtn.innerText = "Solve on LeetCode ➔";
+newBtn.addEventListener("click", () => {
+    // 1. Force HTTPs if missing
+    let safeLink = data.link;
+    if (!safeLink.startsWith("http")) {
+        safeLink = "https://" + safeLink;
+    }
+    
+    // 2. Open in new tab
+    window.open(safeLink, '_blank');
+});};
 
                     // 👇 NEW: UPDATE RESOURCE DROP DYNAMICALLY 👇
                     if(data.resourceTitle && data.resourceLink && resourceBox) {
@@ -236,5 +250,6 @@
     </script>
 </body>
 </html>
+
 
 
