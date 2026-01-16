@@ -54,22 +54,68 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        const firebaseConfig = { apiKey: "AIzaSyAIN0wAqPcPTqgZ6PrejDHcPnWcLOoyWOY", authDomain: "beyond-academics-web.firebaseapp.com", projectId: "beyond-academics-web", storageBucket: "beyond-academics-web.firebasestorage.app", messagingSenderId: "629372056950", appId: "1:629372056950:web:a98541b13caad1391cb657" };
-        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+
+        const firebaseConfig = {
+             apiKey: "AIzaSyAIN0wAqPcPTqgZ6PrejDHcPnWcLOoyWOY",
+             authDomain: "beyond-academics-web.firebaseapp.com",
+             projectId: "beyond-academics-web",
+             storageBucket: "beyond-academics-web.firebasestorage.app",
+             messagingSenderId: "629372056950",
+             appId: "1:629372056950:web:a98541b13caad1391cb657"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
         let currentUser = null;
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) { currentUser = user; document.getElementById("user-name").innerText = user.displayName.split(" ")[0]; getChallengeData(); } 
-            else { window.location.href = "index.html"; }
+        // 1. Hide everything initially for security
+        document.querySelector(".container").style.display = "none";
+
+        // 2. THE BOUNCER LOGIC 🛡️
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is logged into Google... but are they a Member?
+                try {
+                    // Check if their email exists in 'allowed_users' collection
+                    const userRef = doc(db, "allowed_users", user.email);
+                    const userSnap = await getDoc(userRef);
+
+                    if (userSnap.exists()) {
+                        // ✅ ACCESS GRANTED
+                        console.log("Welcome VIP member.");
+                        document.querySelector(".container").style.display = "block"; // Show the page
+                        
+                        currentUser = user;
+                        document.getElementById("user-name").innerText = user.displayName.split(" ")[0];
+                        getChallengeData();
+                    } else {
+                        // ⛔ ACCESS DENIED
+                        alert("🔒 Access Denied. You are not on the Week 1 member list.");
+                        await signOut(auth);
+                        window.location.href = "index.html";
+                    }
+                } catch (error) {
+                    console.error("Verification Error:", error);
+                    alert("System Error checking permission.");
+                }
+            } else {
+                window.location.href = "index.html";
+            }
         });
 
-        document.getElementById("logout-btn").addEventListener("click", () => { signOut(auth).then(() => { window.location.href = "index.html"; }); });
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            signOut(auth).then(() => { window.location.href = "index.html"; });
+        });
 
+        // ... (Keep your getChallengeData and Submit logic exactly the same below) ...
         async function getChallengeData() {
+            // ... (Paste your existing getChallengeData code here) ...
+            // (I am not repeating it to save space, but DO NOT DELETE IT)
             try {
                 const headerEl = document.getElementById("challenge-header");
                 const detailsEl = document.getElementById("challenge-details");
-                const descEl = document.getElementById("challenge-description"); // NEW
+                const descEl = document.getElementById("challenge-description");
                 const btnEl = document.getElementById("challenge-btn");
                 const resourceBox = document.getElementById("resource-box");
 
@@ -82,9 +128,7 @@
                     const data = docSnap.data();
                     headerEl.innerHTML = `Week 1 Challenge <span class="tag" id="challenge-status">${data.status}</span>`;
                     detailsEl.innerHTML = `<strong>Topic:</strong> ${data.topic}<br><strong>Problem:</strong> "${data.title}"`;
-                    
-                    // NEW: Display the Description
-                    descEl.innerText = data.description || "No specific details for this challenge.";
+                    descEl.innerText = data.description || "No specific details.";
 
                     const newBtn = btnEl.cloneNode(true);
                     btnEl.parentNode.replaceChild(newBtn, btnEl);
@@ -107,6 +151,22 @@
         const submitBtn = document.getElementById("submit-btn");
         if(submitBtn) {
             submitBtn.addEventListener("click", async () => {
+                // ... (Paste your existing submission logic here) ...
+                const inputEl = document.getElementById("submission-link");
+                const msgEl = document.getElementById("submit-msg");
+                const link = inputEl.value;
+                if(!link.includes("http")) { msgEl.style.color = "#ef4444"; msgEl.innerText = "⚠️ Invalid link."; return; }
+                submitBtn.innerText = "Sending...";
+                try {
+                    await addDoc(collection(db, "submissions"), { userName: currentUser.displayName, userEmail: currentUser.email, link: link, challengeId: "week_1", timestamp: serverTimestamp() });
+                    msgEl.style.color = "#4ade80"; msgEl.innerText = "✅ Submitted!"; inputEl.value = ""; submitBtn.innerText = "Submit";
+                } catch (error) { console.error(error); msgEl.style.color = "#ef4444"; msgEl.innerText = "❌ Error."; submitBtn.innerText = "Submit"; }
+            });
+        }
+    </script>
+        const submitBtn = document.getElementById("submit-btn");
+        if(submitBtn) {
+            submitBtn.addEventListener("click", async () => {
                 const inputEl = document.getElementById("submission-link");
                 const msgEl = document.getElementById("submit-msg");
                 const link = inputEl.value;
@@ -121,3 +181,4 @@
     </script>
 </body>
 </html>
+
