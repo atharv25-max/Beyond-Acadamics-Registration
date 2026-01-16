@@ -118,13 +118,11 @@
     </div>
 
     <script type="module">
-        // 1. IMPORT FIREBASE TOOLS
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        // NEW IMPORTS: collection, addDoc, serverTimestamp (For submissions)
         import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // 2. YOUR CONFIG
+        // --- PASTE YOUR API KEYS HERE ---
         const firebaseConfig = {
              apiKey: "AIzaSyAIN0wAqPcPTqgZ6PrejDHcPnWcLOoyWOY",
              authDomain: "beyond-academics-web.firebaseapp.com",
@@ -138,34 +136,38 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUser = null; // Store user info for submission
+        let currentUser = null;
 
-        // 3. CHECK LOGIN STATUS
+        // 1. Auth Check
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUser = user; // Save user globally
-                const firstName = user.displayName ? user.displayName.split(" ")[0] : "Member";
-                document.getElementById("user-name").innerText = firstName;
+                currentUser = user;
+                const nameEl = document.getElementById("user-name");
+                if (nameEl) nameEl.innerText = user.displayName.split(" ")[0];
                 getChallengeData();
             } else {
                 window.location.href = "index.html";
             }
         });
 
-        // 4. LOGOUT FUNCTION
+        // 2. Logout
         document.getElementById("logout-btn").addEventListener("click", () => {
             signOut(auth).then(() => { window.location.href = "index.html"; });
         });
 
-        // 5. FETCH CHALLENGE DATA
+        // 3. Fetch Data (THE PART THAT WAS FAILING)
         async function getChallengeData() {
             try {
-                // Check elements first
+                // We double check if elements exist to prevent crashes
                 const headerEl = document.getElementById("challenge-header");
                 const detailsEl = document.getElementById("challenge-details");
                 const btnEl = document.getElementById("challenge-btn");
+                const statusEl = document.getElementById("challenge-status");
 
-                if (!headerEl || !detailsEl || !btnEl) return;
+                if (!headerEl || !detailsEl || !btnEl) {
+                    console.error("CRITICAL: HTML Elements missing! Refresh the page.");
+                    return;
+                }
 
                 const docRef = doc(db, "app_data", "week_1");
                 const docSnap = await getDoc(docRef);
@@ -173,25 +175,25 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     
-                    headerEl.innerHTML = `Week 1 Challenge <span class="tag">${data.status}</span>`;
-                    document.getElementById("challenge-status").innerText = data.status;
-
+                    // Update Text
+                    headerEl.innerHTML = `Week 1 Challenge <span class="tag" id="challenge-status">${data.status}</span>`;
+                    
+                    // Update Details
                     detailsEl.innerHTML = `
                         <strong>Topic:</strong> ${data.topic}<br>
                         <strong>Problem:</strong> "${data.title}"
                     `;
 
+                    // Update Button
                     btnEl.innerText = "Solve on LeetCode ➔";
                     btnEl.onclick = function() { window.open(data.link, '_blank'); };
-                } else {
-                    console.log("No data found");
                 }
             } catch (error) {
                 console.error("Error getting document:", error);
             }
         }
 
-        // 6. NEW: HANDLE SUBMISSION
+        // 4. Submission Logic
         const submitBtn = document.getElementById("submit-btn");
         
         if(submitBtn) {
@@ -200,7 +202,6 @@
                 const msgEl = document.getElementById("submit-msg");
                 const link = inputEl.value;
 
-                // Validation
                 if(!link.includes("http")) {
                     msgEl.style.color = "#ef4444";
                     msgEl.innerText = "⚠️ Invalid link. Must start with http/https";
@@ -210,7 +211,6 @@
                 submitBtn.innerText = "Sending...";
 
                 try {
-                    // Write to Firestore
                     await addDoc(collection(db, "submissions"), {
                         userName: currentUser.displayName,
                         userEmail: currentUser.email,
@@ -219,16 +219,14 @@
                         timestamp: serverTimestamp()
                     });
 
-                    // Success Feedback
-                    msgEl.style.color = "#4ade80"; // Green
+                    msgEl.style.color = "#4ade80";
                     msgEl.innerText = "✅ Submitted successfully!";
-                    inputEl.value = ""; // Clear input
+                    inputEl.value = "";
                     submitBtn.innerText = "Submit";
-
                 } catch (error) {
                     console.error("Submit Error:", error);
                     msgEl.style.color = "#ef4444";
-                    msgEl.innerText = "❌ Error submitting. Check Console.";
+                    msgEl.innerText = "❌ Error. Check Console.";
                     submitBtn.innerText = "Submit";
                 }
             });
