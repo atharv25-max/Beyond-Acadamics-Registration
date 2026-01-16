@@ -6,43 +6,50 @@
     <title>Member Dashboard | Beyond Academics</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
     <style>
-        /* --- SAME THEME AS LANDING PAGE --- */
+        /* --- THEME --- */
         :root {
             --bg-color: #0f172a;
             --card-bg: rgba(30, 41, 59, 0.7);
             --text-primary: #f8fafc;
-            --accent: #6366f1;
         }
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-primary);
             margin: 0; padding: 0;
+            overflow-x: hidden;
         }
         .navbar {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 40px; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;
+            padding: 15px 20px; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;
         }
         .logo { font-weight: 800; font-size: 1.2rem; color: #fff; }
         .logout-btn {
             background: transparent; border: 1px solid #ef4444; color: #ef4444;
-            padding: 8px 16px; border-radius: 5px; cursor: pointer; transition: 0.3s;
+            padding: 6px 12px; border-radius: 5px; cursor: pointer;
         }
         .logout-btn:hover { background: #ef4444; color: white; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
         
-        /* DASHBOARD LAYOUT */
-        .container { max-width: 1000px; margin: 40px auto; padding: 20px; }
         .welcome-banner {
             background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            padding: 40px; border-radius: 16px; margin-bottom: 30px;
+            padding: 30px; border-radius: 16px; margin-bottom: 25px;
         }
+        
         .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
         .card {
             background: var(--card-bg); padding: 25px; border-radius: 12px;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        h2 { margin-top: 0; }
         .tag { background: #22c55e; color: black; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        
+        .action-btn {
+            background: white; border: none; padding: 12px 20px; 
+            border-radius: 6px; cursor: pointer; font-weight: bold;
+            color: #0f172a; width: 100%; margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -60,57 +67,46 @@
 
         <div class="grid">
             <div class="card">
-                <h2>🎯 Week 1 Challenge <span class="tag">ACTIVE</span></h2>
-                <p style="color: #ccc; margin: 15px 0;">
-                    <strong>Topic:</strong> Optimization & Arrays<br>
-                    <strong>Problem:</strong> "The Rainwater Trapping Problem"
+                <h2 id="challenge-header">
+                    Loading... <span class="tag">...</span>
+                </h2>
+                
+                <p id="challenge-details" style="color: #cbd5e1; margin: 15px 0; min-height: 60px;">
+                    Connecting to Database...
                 </p>
-                <hr style="border-color: #444; margin: 15px 0;">
-                <p>We are not just solving it. We are comparing 3 approaches:</p>
-                <ul>
-                    <li>Brute Force (O(n²))</li>
+                
+                <hr style="border-color: rgba(255,255,255,0.1);">
+                
+                <p style="font-size: 0.9rem; color: #94a3b8;">Goal: Compare 3 Logic Approaches.</p>
+                <ul style="color: #cbd5e1; padding-left: 20px;">
+                    <li>Brute Force Approach</li>
                     <li>Dynamic Programming</li>
-                    <li>Two Pointer (O(n))</li>
+                    <li>Two Pointer Optimization</li>
                 </ul>
-                <br>
-                <button style="background: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-                    View Problem Details ➔
+
+                <button id="challenge-btn" class="action-btn">
+                    Loading Link...
                 </button>
             </div>
 
             <div class="card">
-    <h2 id="challenge-header">
-        Loading Challenge... <span class="tag" id="challenge-status">...</span>
-    </h2>
-
-    <p style="color: #cbd5e1; margin-top: 10px;" id="challenge-details">
-        Connecting to HQ...
-    </p>
-    
-    <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
-    
-    <p style="font-size: 0.9rem; color: #94a3b8;">Goal: Compare 3 Logic Approaches.</p>
-    <ul style="color: #cbd5e1; padding-left: 20px; margin-bottom: 25px;">
-        <li>Brute Force Approach</li>
-        <li>Dynamic Programming</li>
-        <li>Two Pointer Optimization</li>
-    </ul>
-    
-    <button id="challenge-btn" class="action-btn">
-        View Problem Statement ➔
-    </button>
-</div>
+                <h3>📚 Resource Drop</h3>
+                <p style="font-size: 0.9rem; color: #aaa;">Curated by Tech Lead</p>
+                <div style="margin-top: 15px;">
+                    <a href="#" style="color: #6366f1; text-decoration: none; display: block; margin-bottom: 10px;">
+                        ▶ Video: Visualizing Two Pointers
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
     <script type="module">
-        // 1. IMPORT FIREBASE TOOLS
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        // New Import: Firestore
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // 2. YOUR CONFIG (PASTE YOUR KEYS HERE)
+        // --- PASTE YOUR API KEYS HERE ---
         const firebaseConfig = {
              apiKey: "AIzaSyAIN0wAqPcPTqgZ6PrejDHcPnWcLOoyWOY",
              authDomain: "beyond-academics-web.firebaseapp.com",
@@ -120,68 +116,65 @@
              appId: "1:629372056950:web:a98541b13caad1391cb657"
         };
 
-        // 3. INITIALIZE APP
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app); // Connect to Database
+        const db = getFirestore(app);
 
-        // 4. CHECK LOGIN STATUS
+        // 1. Auth Check
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is logged in
-                const firstName = user.displayName ? user.displayName.split(" ")[0] : "Member";
-                document.getElementById("user-name").innerText = firstName;
+                // Safe check for user-name element
+                const nameEl = document.getElementById("user-name");
+                if (nameEl) nameEl.innerText = user.displayName.split(" ")[0];
                 
-                // TRIGGER: Fetch the Data!
                 getChallengeData();
             } else {
-                // User is not logged in -> Kick them out
                 window.location.href = "index.html";
             }
         });
 
-        // 5. LOGOUT FUNCTION
+        // 2. Logout
         document.getElementById("logout-btn").addEventListener("click", () => {
-            signOut(auth).then(() => {
-                window.location.href = "index.html";
-            });
+            signOut(auth).then(() => { window.location.href = "index.html"; });
         });
 
-        // 6. THE DATABASE FUNCTION (The Magic Part)
+        // 3. Database Fetch
         async function getChallengeData() {
             try {
-                // Look inside "app_data" collection for the "week_1" document
+                // Check if Elements Exist (The Fix for your Error)
+                const headerEl = document.getElementById("challenge-header");
+                const detailsEl = document.getElementById("challenge-details");
+                const btnEl = document.getElementById("challenge-btn");
+
+                if (!headerEl || !detailsEl || !btnEl) {
+                    console.error("CRITICAL: HTML Elements missing! Check IDs.");
+                    return;
+                }
+
+                // Fetch Data
                 const docRef = doc(db, "app_data", "week_1");
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    console.log("Data found:", data);
-
-                    // Update HTML with Database Data
-                    document.getElementById("challenge-header").innerHTML = 
-                        `Week 1 Challenge <span class="tag">${data.status}</span>`;
-
-                    document.getElementById("challenge-status").innerText = data.status;
-
-                    document.getElementById("challenge-details").innerHTML = `
+                    
+                    // Inject Data
+                    headerEl.innerHTML = `Week 1 Challenge <span class="tag">${data.status}</span>`;
+                    detailsEl.innerHTML = `
                         <strong>Topic:</strong> ${data.topic}<br>
                         <strong>Problem:</strong> "${data.title}"
                     `;
-
-                    // Make the button work
-                    const btn = document.getElementById("challenge-btn");
-                    btn.onclick = function() {
-                        window.open(data.link, '_blank');
-                    };
-                    btn.innerText = "Solve on LeetCode ➔";
+                    
+                    btnEl.innerText = "Solve on LeetCode ➔";
+                    btnEl.onclick = function() { window.open(data.link, '_blank'); };
 
                 } else {
-                    console.log("No such document!");
-                    document.getElementById("challenge-details").innerText = "No active challenge found.";
+                    detailsEl.innerText = "Error: Challenge 'week_1' not found in DB.";
                 }
             } catch (error) {
-                console.error("Error getting document:", error);
+                console.error("DB Error:", error);
+                const detailsEl = document.getElementById("challenge-details");
+                if(detailsEl) detailsEl.innerText = "Connection Failed. Check Console.";
             }
         }
     </script>
