@@ -4,9 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Dashboard | Beyond Academics</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
     <style>
         :root { --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); --text-primary: #f8fafc; --accent: #6366f1; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-primary); margin: 0; padding: 0; overflow-x: hidden; }
+        
+        /* 🔒 SECURITY: Hide the entire body initially */
+        body { 
+            display: none; /* HIDDEN BY DEFAULT */
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-primary); 
+            margin: 0; padding: 0; overflow-x: hidden; 
+        }
+
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333; }
         .logo { font-weight: 800; font-size: 1.2rem; color: #fff; }
         .logout-btn { background: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 8px 16px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
@@ -29,10 +39,7 @@
                 <h2 id="challenge-header">Loading... <span class="tag" id="challenge-status">...</span></h2>
                 <p style="color: #cbd5e1; margin-top: 10px;" id="challenge-details">Connecting to HQ...</p>
                 <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
-                
-                <div id="challenge-description" style="color: #cbd5e1; white-space: pre-line; margin-bottom: 25px; line-height: 1.6;">
-                    Loading details...
-                </div>
+                <div id="challenge-description" style="color: #cbd5e1; white-space: pre-line; margin-bottom: 25px; line-height: 1.6;">Loading details...</div>
                 <button id="challenge-btn" class="action-btn">View Problem Statement ➔</button>
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed rgba(255,255,255,0.2);">
                     <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px;">✅ Done? Paste your GitHub Gist / LeetCode link:</p>
@@ -55,6 +62,7 @@
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // --- PASTE YOUR API KEYS HERE ---
         const firebaseConfig = {
              apiKey: "AIzaSyAIN0wAqPcPTqgZ6PrejDHcPnWcLOoyWOY",
              authDomain: "beyond-academics-web.firebaseapp.com",
@@ -69,49 +77,54 @@
         const db = getFirestore(app);
         let currentUser = null;
 
-        // 1. Hide everything initially for security
-        document.querySelector(".container").style.display = "none";
-
-        // 2. THE BOUNCER LOGIC 🛡️
+        // 🛡️ STRICT BOUNCER LOGIC
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // User is logged into Google... but are they a Member?
+                console.log("Checking access for:", user.email);
                 try {
-                    // Check if their email exists in 'allowed_users' collection
-                    const userRef = doc(db, "allowed_users", user.email);
+                    // 1. Convert to lowercase to prevent "CamleCase" errors
+                    const emailToCheck = user.email.toLowerCase();
+                    
+                    // 2. Check Database
+                    const userRef = doc(db, "allowed_users", emailToCheck);
                     const userSnap = await getDoc(userRef);
 
                     if (userSnap.exists()) {
                         // ✅ ACCESS GRANTED
-                        console.log("Welcome VIP member.");
-                        document.querySelector(".container").style.display = "block"; // Show the page
-                        
+                        console.log("Access Granted.");
+                        document.body.style.display = "block"; // Show page
                         currentUser = user;
                         document.getElementById("user-name").innerText = user.displayName.split(" ")[0];
                         getChallengeData();
                     } else {
-                        // ⛔ ACCESS DENIED
-                        alert("🔒 Access Denied. You are not on the Week 1 member list.");
-                        await signOut(auth);
-                        window.location.href = "index.html";
+                        // ⛔ ACCESS DENIED (Not in list)
+                        console.error("User not found in allowed_users list.");
+                        forceLogout("🔒 Access Denied. Your email is not on the VIP list.");
                     }
                 } catch (error) {
-                    console.error("Verification Error:", error);
-                    alert("System Error checking permission.");
+                    // ⛔ ERROR (Database permission/connection issue)
+                    console.error("System Check Error:", error);
+                    // If we can't verify them, we MUST kick them out for safety
+                    forceLogout("⚠️ System Error: Could not verify permissions. Please contact Admin.");
                 }
             } else {
                 window.location.href = "index.html";
             }
         });
 
+        // Helper function to kick users out
+        function forceLogout(message) {
+            alert(message);
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            });
+        }
+
         document.getElementById("logout-btn").addEventListener("click", () => {
             signOut(auth).then(() => { window.location.href = "index.html"; });
         });
 
-        // ... (Keep your getChallengeData and Submit logic exactly the same below) ...
         async function getChallengeData() {
-            // ... (Paste your existing getChallengeData code here) ...
-            // (I am not repeating it to save space, but DO NOT DELETE IT)
             try {
                 const headerEl = document.getElementById("challenge-header");
                 const detailsEl = document.getElementById("challenge-details");
@@ -129,7 +142,7 @@
                     headerEl.innerHTML = `Week 1 Challenge <span class="tag" id="challenge-status">${data.status}</span>`;
                     detailsEl.innerHTML = `<strong>Topic:</strong> ${data.topic}<br><strong>Problem:</strong> "${data.title}"`;
                     descEl.innerText = data.description || "No specific details.";
-
+                    
                     const newBtn = btnEl.cloneNode(true);
                     btnEl.parentNode.replaceChild(newBtn, btnEl);
                     newBtn.innerText = "Solve on LeetCode ➔";
@@ -151,22 +164,6 @@
         const submitBtn = document.getElementById("submit-btn");
         if(submitBtn) {
             submitBtn.addEventListener("click", async () => {
-                // ... (Paste your existing submission logic here) ...
-                const inputEl = document.getElementById("submission-link");
-                const msgEl = document.getElementById("submit-msg");
-                const link = inputEl.value;
-                if(!link.includes("http")) { msgEl.style.color = "#ef4444"; msgEl.innerText = "⚠️ Invalid link."; return; }
-                submitBtn.innerText = "Sending...";
-                try {
-                    await addDoc(collection(db, "submissions"), { userName: currentUser.displayName, userEmail: currentUser.email, link: link, challengeId: "week_1", timestamp: serverTimestamp() });
-                    msgEl.style.color = "#4ade80"; msgEl.innerText = "✅ Submitted!"; inputEl.value = ""; submitBtn.innerText = "Submit";
-                } catch (error) { console.error(error); msgEl.style.color = "#ef4444"; msgEl.innerText = "❌ Error."; submitBtn.innerText = "Submit"; }
-            });
-        }
-    </script>
-        const submitBtn = document.getElementById("submit-btn");
-        if(submitBtn) {
-            submitBtn.addEventListener("click", async () => {
                 const inputEl = document.getElementById("submission-link");
                 const msgEl = document.getElementById("submit-msg");
                 const link = inputEl.value;
@@ -181,4 +178,3 @@
     </script>
 </body>
 </html>
-
