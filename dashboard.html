@@ -156,43 +156,42 @@
         // 3. Fetch Data (THE PART THAT WAS FAILING)
         async function getChallengeData() {
             try {
-                console.log("Starting data fetch...");
-
-                // 1. Check if HTML elements exist
+                // ... (your existing element checks) ...
                 const headerEl = document.getElementById("challenge-header");
                 const detailsEl = document.getElementById("challenge-details");
                 const btnEl = document.getElementById("challenge-btn");
+                
+                // 1. Get the Resource Section (Adding a variable for it)
+                // This looks for the "h3" inside the ".card", then finds the "div" below it
+                const resourceBox = document.querySelector(".card h3").parentElement.querySelector("div");
 
-                if (!headerEl || !detailsEl || !btnEl) {
-                    console.error("CRITICAL ERROR: HTML IDs are missing. Check your HTML file.");
-                    return;
-                }
+                if (!headerEl || !detailsEl || !btnEl) return;
 
-                // 2. Fetch Data
                 const docRef = doc(db, "app_data", "week_1");
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
-                    console.log("Data found!", docSnap.data());
                     const data = docSnap.data();
                     
-                    headerEl.innerHTML = `Week 1 Challenge <span class="tag">${data.status}</span>`;
-                    
-                    detailsEl.innerHTML = `
-                        <strong>Topic:</strong> ${data.topic}<br>
-                        <strong>Problem:</strong> "${data.title}"
-                    `;
-
+                    // ... (your existing challenge updates) ...
+                    headerEl.innerHTML = `Week 1 Challenge <span class="tag" id="challenge-status">${data.status}</span>`;
+                    detailsEl.innerHTML = `<strong>Topic:</strong> ${data.topic}<br><strong>Problem:</strong> "${data.title}"`;
                     btnEl.innerText = "Solve on LeetCode ➔";
                     btnEl.onclick = function() { window.open(data.link, '_blank'); };
-                } else {
-                    console.error("Document 'week_1' not found in 'app_data'.");
-                    detailsEl.innerText = "Error: Challenge not found in Database.";
+
+                    // 👇 NEW: UPDATE RESOURCE DROP DYNAMICALLY 👇
+                    if(data.resourceTitle && data.resourceLink && resourceBox) {
+                        resourceBox.innerHTML = `
+                            <a href="${data.resourceLink}" target="_blank" style="color: #6366f1; text-decoration: none; display: block; margin-bottom: 10px;">
+                                ▶ ${data.resourceTitle}
+                            </a>
+                        `;
+                    }
+                    // 👆 END NEW CODE 👆
+
                 }
             } catch (error) {
-                console.error("Database Connection Error:", error);
-                const detailsEl = document.getElementById("challenge-details");
-                if(detailsEl) detailsEl.innerText = "Connection Failed. Check Console (F12).";
+                console.error("Error getting document:", error);
             }
         }
 
@@ -237,4 +236,5 @@
     </script>
 </body>
 </html>
+
 
