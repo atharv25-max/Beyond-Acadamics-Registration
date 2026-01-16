@@ -4,113 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Dashboard | Beyond Academics</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
     <style>
-        /* --- THEME --- */
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --text-primary: #f8fafc;
-            --accent: #6366f1;
-        }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            margin: 0; padding: 0;
-            overflow-x: hidden;
-        }
-        .navbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 40px; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333;
-        }
+        :root { --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); --text-primary: #f8fafc; --accent: #6366f1; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-primary); margin: 0; padding: 0; overflow-x: hidden; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333; }
         .logo { font-weight: 800; font-size: 1.2rem; color: #fff; }
-        .logout-btn {
-            background: transparent; border: 1px solid #ef4444; color: #ef4444;
-            padding: 8px 16px; border-radius: 5px; cursor: pointer; transition: 0.3s;
-        }
+        .logout-btn { background: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 8px 16px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
         .logout-btn:hover { background: #ef4444; color: white; }
-        
         .container { max-width: 1000px; margin: 40px auto; padding: 20px; }
-        .welcome-banner {
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            padding: 40px; border-radius: 16px; margin-bottom: 30px;
-        }
+        .welcome-banner { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); padding: 40px; border-radius: 16px; margin-bottom: 30px; }
         .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
         @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
-
-        .card {
-            background: var(--card-bg); padding: 25px; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+        .card { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
         .tag { background: #22c55e; color: black; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
-        
-        .action-btn {
-            background: white; border: none; padding: 12px 20px; 
-            border-radius: 6px; cursor: pointer; font-weight: bold;
-            color: #0f172a; width: 100%; margin-top: 10px;
-        }
+        .action-btn { background: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; color: #0f172a; width: 100%; margin-top: 10px; }
     </style>
 </head>
 <body>
-
-    <nav class="navbar">
-        <div class="logo">🚀 Beyond Academics</div>
-        <button id="logout-btn" class="logout-btn">Log Out</button>
-    </nav>
-
+    <nav class="navbar"><div class="logo">🚀 Beyond Academics</div><button id="logout-btn" class="logout-btn">Log Out</button></nav>
     <div class="container">
-        <div class="welcome-banner">
-            <h1>Welcome back, <span id="user-name">Member</span>!</h1>
-            <p>Ready for this week's logic jam?</p>
-        </div>
-
+        <div class="welcome-banner"><h1>Welcome back, <span id="user-name">Member</span>!</h1><p>Ready for this week's logic jam?</p></div>
         <div class="grid">
             <div class="card">
-                <h2 id="challenge-header">
-                    Loading Challenge... <span class="tag" id="challenge-status">...</span>
-                </h2>
-
-                <p style="color: #cbd5e1; margin-top: 10px;" id="challenge-details">
-                    Connecting to HQ...
-                </p>
-                
+                <h2 id="challenge-header">Loading... <span class="tag" id="challenge-status">...</span></h2>
+                <p style="color: #cbd5e1; margin-top: 10px;" id="challenge-details">Connecting to HQ...</p>
                 <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
                 
-                <p style="font-size: 0.9rem; color: #94a3b8;">Goal: Compare 3 Logic Approaches.</p>
-                <ul style="color: #cbd5e1; padding-left: 20px; margin-bottom: 25px;">
-                    <li>Brute Force Approach</li>
-                    <li>Dynamic Programming</li>
-                    <li>Two Pointer Optimization</li>
-                </ul>
-                
-                <button id="challenge-btn" class="action-btn">
-                    View Problem Statement ➔
-                </button>
-
+                <div id="challenge-description" style="color: #cbd5e1; white-space: pre-line; margin-bottom: 25px; line-height: 1.6;">
+                    Loading details...
+                </div>
+                <button id="challenge-btn" class="action-btn">View Problem Statement ➔</button>
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed rgba(255,255,255,0.2);">
-                    <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px;">
-                        ✅ Done? Paste your GitHub Gist / LeetCode link:
-                    </p>
-                    
+                    <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px;">✅ Done? Paste your GitHub Gist / LeetCode link:</p>
                     <div style="display: flex; gap: 10px;">
-                        <input type="text" id="submission-link" placeholder="https://..." 
-                            style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white;">
-                        
-                        <button id="submit-btn" style="background: #22c55e; color: black; border: none; padding: 0 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">
-                            Submit
-                        </button>
+                        <input type="text" id="submission-link" placeholder="https://..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white;">
+                        <button id="submit-btn" style="background: #22c55e; color: black; border: none; padding: 0 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">Submit</button>
                     </div>
                     <p id="submit-msg" style="font-size: 0.8rem; margin-top: 5px; min-height: 20px;"></p>
                 </div>
             </div>
-
             <div class="card">
-                <h3>📚 Resource Drop</h3>
-                <p style="font-size: 0.9rem; color: #aaa;">Curated by Tech Lead</p>
-                <div id="resource-box" style="margin-top: 15px;">
-                     <p style="color:#64748b">Loading resources...</p>
-                </div>
+                <h3>📚 Resource Drop</h3><p style="font-size: 0.9rem; color: #aaa;">Curated by Tech Lead</p>
+                <div id="resource-box" style="margin-top: 15px;"><p style="color:#64748b">Loading resources...</p></div>
             </div>
         </div>
     </div>
@@ -119,73 +54,40 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        // --- PASTE YOUR API KEYS HERE ---
-        const firebaseConfig = {
-             apiKey: "AIzaSyAIN0wAqPcPTqgZ6PrejDHcPnWcLOoyWOY",
-             authDomain: "beyond-academics-web.firebaseapp.com",
-             projectId: "beyond-academics-web",
-             storageBucket: "beyond-academics-web.firebasestorage.app",
-             messagingSenderId: "629372056950",
-             appId: "1:629372056950:web:a98541b13caad1391cb657"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
+        const firebaseConfig = { apiKey: "AIzaSyAIN0wAqPcPTqgZ6PrejDHcPnWcLOoyWOY", authDomain: "beyond-academics-web.firebaseapp.com", projectId: "beyond-academics-web", storageBucket: "beyond-academics-web.firebasestorage.app", messagingSenderId: "629372056950", appId: "1:629372056950:web:a98541b13caad1391cb657" };
+        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
         let currentUser = null;
 
-        // 1. Auth Check
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                const nameEl = document.getElementById("user-name");
-                if (nameEl) nameEl.innerText = user.displayName.split(" ")[0];
-                getChallengeData();
-            } else {
-                window.location.href = "index.html";
-            }
+            if (user) { currentUser = user; document.getElementById("user-name").innerText = user.displayName.split(" ")[0]; getChallengeData(); } 
+            else { window.location.href = "index.html"; }
         });
 
-        // 2. Logout
-        document.getElementById("logout-btn").addEventListener("click", () => {
-            signOut(auth).then(() => { window.location.href = "index.html"; });
-        });
+        document.getElementById("logout-btn").addEventListener("click", () => { signOut(auth).then(() => { window.location.href = "index.html"; }); });
 
-        // 3. Fetch Data
         async function getChallengeData() {
             try {
-                // We double check if elements exist to prevent crashes
                 const headerEl = document.getElementById("challenge-header");
                 const detailsEl = document.getElementById("challenge-details");
+                const descEl = document.getElementById("challenge-description"); // NEW
                 const btnEl = document.getElementById("challenge-btn");
-                const statusEl = document.getElementById("challenge-status");
                 const resourceBox = document.getElementById("resource-box");
 
-                if (!headerEl || !detailsEl || !btnEl) {
-                    console.error("CRITICAL: HTML Elements missing! Refresh the page.");
-                    return;
-                }
+                if (!headerEl || !detailsEl || !btnEl) return;
 
                 const docRef = doc(db, "app_data", "week_1");
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    
-                    // Update Main Challenge
                     headerEl.innerHTML = `Week 1 Challenge <span class="tag" id="challenge-status">${data.status}</span>`;
+                    detailsEl.innerHTML = `<strong>Topic:</strong> ${data.topic}<br><strong>Problem:</strong> "${data.title}"`;
                     
-                    detailsEl.innerHTML = `
-                        <strong>Topic:</strong> ${data.topic}<br>
-                        <strong>Problem:</strong> "${data.title}"
-                    `;
+                    // NEW: Display the Description
+                    descEl.innerText = data.description || "No specific details for this challenge.";
 
-                    // Update Button with Safe Link Logic
                     const newBtn = btnEl.cloneNode(true);
                     btnEl.parentNode.replaceChild(newBtn, btnEl);
-                    
                     newBtn.innerText = "Solve on LeetCode ➔";
                     newBtn.addEventListener("click", () => {
                         let safeLink = data.link || "";
@@ -193,59 +95,27 @@
                         if (safeLink) window.open(safeLink, '_blank');
                     });
 
-                    // Update Resource Drop (Dynamic)
                     if(data.resourceTitle && data.resourceLink && resourceBox) {
                         let resSafeLink = data.resourceLink;
                         if (!resSafeLink.startsWith("http")) resSafeLink = "https://" + resSafeLink;
-
-                        resourceBox.innerHTML = `
-                            <a href="${resSafeLink}" target="_blank" style="color: #6366f1; text-decoration: none; display: block; margin-bottom: 10px;">
-                                ▶ ${data.resourceTitle}
-                            </a>
-                        `;
+                        resourceBox.innerHTML = `<a href="${resSafeLink}" target="_blank" style="color: #6366f1; text-decoration: none; display: block; margin-bottom: 10px;">▶ ${data.resourceTitle}</a>`;
                     }
                 }
-            } catch (error) {
-                console.error("Error getting document:", error);
-            }
+            } catch (error) { console.error("Error:", error); }
         }
 
-        // 4. Submission Logic
         const submitBtn = document.getElementById("submit-btn");
-        
         if(submitBtn) {
             submitBtn.addEventListener("click", async () => {
                 const inputEl = document.getElementById("submission-link");
                 const msgEl = document.getElementById("submit-msg");
                 const link = inputEl.value;
-
-                if(!link.includes("http")) {
-                    msgEl.style.color = "#ef4444";
-                    msgEl.innerText = "⚠️ Invalid link. Must start with http/https";
-                    return;
-                }
-
+                if(!link.includes("http")) { msgEl.style.color = "#ef4444"; msgEl.innerText = "⚠️ Invalid link."; return; }
                 submitBtn.innerText = "Sending...";
-
                 try {
-                    await addDoc(collection(db, "submissions"), {
-                        userName: currentUser.displayName,
-                        userEmail: currentUser.email,
-                        link: link,
-                        challengeId: "week_1",
-                        timestamp: serverTimestamp()
-                    });
-
-                    msgEl.style.color = "#4ade80";
-                    msgEl.innerText = "✅ Submitted successfully!";
-                    inputEl.value = "";
-                    submitBtn.innerText = "Submit";
-                } catch (error) {
-                    console.error("Submit Error:", error);
-                    msgEl.style.color = "#ef4444";
-                    msgEl.innerText = "❌ Error. Check Console.";
-                    submitBtn.innerText = "Submit";
-                }
+                    await addDoc(collection(db, "submissions"), { userName: currentUser.displayName, userEmail: currentUser.email, link: link, challengeId: "week_1", timestamp: serverTimestamp() });
+                    msgEl.style.color = "#4ade80"; msgEl.innerText = "✅ Submitted!"; inputEl.value = ""; submitBtn.innerText = "Submit";
+                } catch (error) { console.error(error); msgEl.style.color = "#ef4444"; msgEl.innerText = "❌ Error."; submitBtn.innerText = "Submit"; }
             });
         }
     </script>
