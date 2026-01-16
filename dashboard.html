@@ -66,9 +66,9 @@
         </div>
 
         <div class="grid">
-            <div class="card">
+           <div class="card">
                 <h2 id="challenge-header">
-                    Loading Challenge... <span class="tag" id="challenge-status">...</span>
+                    Loading... <span class="tag" id="challenge-status">...</span>
                 </h2>
 
                 <p style="color: #cbd5e1; margin-top: 10px;" id="challenge-details">
@@ -92,18 +92,16 @@
                     <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px;">
                         ✅ Done? Paste your GitHub Gist / LeetCode link:
                     </p>
-                    
                     <div style="display: flex; gap: 10px;">
                         <input type="text" id="submission-link" placeholder="https://..." 
                             style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white;">
-                        
                         <button id="submit-btn" style="background: #22c55e; color: black; border: none; padding: 0 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">
                             Submit
                         </button>
                     </div>
                     <p id="submit-msg" style="font-size: 0.8rem; margin-top: 5px; min-height: 20px;"></p>
                 </div>
-                </div>
+            </div>
 
             <div class="card">
                 <h3>📚 Resource Drop</h3>
@@ -158,38 +156,43 @@
         // 3. Fetch Data (THE PART THAT WAS FAILING)
         async function getChallengeData() {
             try {
-                // We double check if elements exist to prevent crashes
+                console.log("Starting data fetch...");
+
+                // 1. Check if HTML elements exist
                 const headerEl = document.getElementById("challenge-header");
                 const detailsEl = document.getElementById("challenge-details");
                 const btnEl = document.getElementById("challenge-btn");
-                const statusEl = document.getElementById("challenge-status");
 
                 if (!headerEl || !detailsEl || !btnEl) {
-                    console.error("CRITICAL: HTML Elements missing! Refresh the page.");
+                    console.error("CRITICAL ERROR: HTML IDs are missing. Check your HTML file.");
                     return;
                 }
 
+                // 2. Fetch Data
                 const docRef = doc(db, "app_data", "week_1");
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
+                    console.log("Data found!", docSnap.data());
                     const data = docSnap.data();
                     
-                    // Update Text
-                    headerEl.innerHTML = `Week 1 Challenge <span class="tag" id="challenge-status">${data.status}</span>`;
+                    headerEl.innerHTML = `Week 1 Challenge <span class="tag">${data.status}</span>`;
                     
-                    // Update Details
                     detailsEl.innerHTML = `
                         <strong>Topic:</strong> ${data.topic}<br>
                         <strong>Problem:</strong> "${data.title}"
                     `;
 
-                    // Update Button
                     btnEl.innerText = "Solve on LeetCode ➔";
                     btnEl.onclick = function() { window.open(data.link, '_blank'); };
+                } else {
+                    console.error("Document 'week_1' not found in 'app_data'.");
+                    detailsEl.innerText = "Error: Challenge not found in Database.";
                 }
             } catch (error) {
-                console.error("Error getting document:", error);
+                console.error("Database Connection Error:", error);
+                const detailsEl = document.getElementById("challenge-details");
+                if(detailsEl) detailsEl.innerText = "Connection Failed. Check Console (F12).";
             }
         }
 
@@ -234,3 +237,4 @@
     </script>
 </body>
 </html>
+
