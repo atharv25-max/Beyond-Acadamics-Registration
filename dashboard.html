@@ -66,9 +66,9 @@
         </div>
 
         <div class="grid">
-           <div class="card">
+            <div class="card">
                 <h2 id="challenge-header">
-                    Loading... <span class="tag" id="challenge-status">...</span>
+                    Loading Challenge... <span class="tag" id="challenge-status">...</span>
                 </h2>
 
                 <p style="color: #cbd5e1; margin-top: 10px;" id="challenge-details">
@@ -92,9 +92,11 @@
                     <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px;">
                         ✅ Done? Paste your GitHub Gist / LeetCode link:
                     </p>
+                    
                     <div style="display: flex; gap: 10px;">
                         <input type="text" id="submission-link" placeholder="https://..." 
                             style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white;">
+                        
                         <button id="submit-btn" style="background: #22c55e; color: black; border: none; padding: 0 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">
                             Submit
                         </button>
@@ -106,10 +108,8 @@
             <div class="card">
                 <h3>📚 Resource Drop</h3>
                 <p style="font-size: 0.9rem; color: #aaa;">Curated by Tech Lead</p>
-                <div style="margin-top: 15px;">
-                    <a href="#" style="color: #6366f1; text-decoration: none; display: block; margin-bottom: 10px;">
-                        ▶ Video: Visualizing Two Pointers
-                    </a>
+                <div id="resource-box" style="margin-top: 15px;">
+                     <p style="color:#64748b">Loading resources...</p>
                 </div>
             </div>
         </div>
@@ -153,19 +153,20 @@
             signOut(auth).then(() => { window.location.href = "index.html"; });
         });
 
-        // 3. Fetch Data (THE PART THAT WAS FAILING)
+        // 3. Fetch Data
         async function getChallengeData() {
             try {
-                // ... (your existing element checks) ...
+                // We double check if elements exist to prevent crashes
                 const headerEl = document.getElementById("challenge-header");
                 const detailsEl = document.getElementById("challenge-details");
                 const btnEl = document.getElementById("challenge-btn");
-                
-                // 1. Get the Resource Section (Adding a variable for it)
-                // This looks for the "h3" inside the ".card", then finds the "div" below it
-                const resourceBox = document.querySelector(".card h3").parentElement.querySelector("div");
+                const statusEl = document.getElementById("challenge-status");
+                const resourceBox = document.getElementById("resource-box");
 
-                if (!headerEl || !detailsEl || !btnEl) return;
+                if (!headerEl || !detailsEl || !btnEl) {
+                    console.error("CRITICAL: HTML Elements missing! Refresh the page.");
+                    return;
+                }
 
                 const docRef = doc(db, "app_data", "week_1");
                 const docSnap = await getDoc(docRef);
@@ -173,36 +174,36 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     
-                    // ... (your existing challenge updates) ...
+                    // Update Main Challenge
                     headerEl.innerHTML = `Week 1 Challenge <span class="tag" id="challenge-status">${data.status}</span>`;
-                    detailsEl.innerHTML = `<strong>Topic:</strong> ${data.topic}<br><strong>Problem:</strong> "${data.title}"`;
-                    btnEl.innerText = "Solve on LeetCode ➔";
-                    // Remove any previous event listeners (good practice)
-const newBtn = btn.cloneNode(true);
-btn.parentNode.replaceChild(newBtn, btn);
+                    
+                    detailsEl.innerHTML = `
+                        <strong>Topic:</strong> ${data.topic}<br>
+                        <strong>Problem:</strong> "${data.title}"
+                    `;
 
-newBtn.innerText = "Solve on LeetCode ➔";
-newBtn.addEventListener("click", () => {
-    // 1. Force HTTPs if missing
-    let safeLink = data.link;
-    if (!safeLink.startsWith("http")) {
-        safeLink = "https://" + safeLink;
-    }
-    
-    // 2. Open in new tab
-    window.open(safeLink, '_blank');
-});};
+                    // Update Button with Safe Link Logic
+                    const newBtn = btnEl.cloneNode(true);
+                    btnEl.parentNode.replaceChild(newBtn, btnEl);
+                    
+                    newBtn.innerText = "Solve on LeetCode ➔";
+                    newBtn.addEventListener("click", () => {
+                        let safeLink = data.link || "";
+                        if (safeLink && !safeLink.startsWith("http")) safeLink = "https://" + safeLink;
+                        if (safeLink) window.open(safeLink, '_blank');
+                    });
 
-                    // 👇 NEW: UPDATE RESOURCE DROP DYNAMICALLY 👇
+                    // Update Resource Drop (Dynamic)
                     if(data.resourceTitle && data.resourceLink && resourceBox) {
+                        let resSafeLink = data.resourceLink;
+                        if (!resSafeLink.startsWith("http")) resSafeLink = "https://" + resSafeLink;
+
                         resourceBox.innerHTML = `
-                            <a href="${data.resourceLink}" target="_blank" style="color: #6366f1; text-decoration: none; display: block; margin-bottom: 10px;">
+                            <a href="${resSafeLink}" target="_blank" style="color: #6366f1; text-decoration: none; display: block; margin-bottom: 10px;">
                                 ▶ ${data.resourceTitle}
                             </a>
                         `;
                     }
-                    // 👆 END NEW CODE 👆
-
                 }
             } catch (error) {
                 console.error("Error getting document:", error);
@@ -250,6 +251,3 @@ newBtn.addEventListener("click", () => {
     </script>
 </body>
 </html>
-
-
-
